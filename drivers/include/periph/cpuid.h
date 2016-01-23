@@ -7,8 +7,8 @@
  */
 
 /**
- * @defgroup    driver_periph_cpuid CPUID
- * @ingroup     driver_periph
+ * @defgroup    drivers_periph_cpuid CPUID
+ * @ingroup     drivers_periph
  * @brief       Low-level CPU ID peripheral driver
  *
  * Provides access the CPU's serial number
@@ -20,10 +20,10 @@
  * @author      Martine Lenders <mlenders@inf.fu-berlin.de>
  */
 
-#ifndef __PERIPH_CPUID_H_
-#define __PERIPH_CPUID_H_
+#ifndef PERIPH_CPUID_H_
+#define PERIPH_CPUID_H_
 
-#include "cpu-conf.h"
+#include "cpu_conf.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,7 +34,7 @@ extern "C" {
  *
  * @brief   The length in byte of the CPU's serial number.
  *
- * @note    Must be defined in the CPU's @ref cpu-conf.h
+ * @note    Must be defined in the CPU's @ref cpu_conf.h
  */
 
 #if CPUID_ID_LEN
@@ -42,7 +42,7 @@ extern "C" {
  * @brief   Gets the serial number of the CPU.
  *
  * @param[out] id   The serial number of the CPU of length CPU_ID_LEN (must be
- *                  defined in the CPU's cpu-conf.h)
+ *                  defined in the CPU's cpu_conf.h)
  */
 void cpuid_get(void *id);
 #endif /* CPUID_ID_LEN */
@@ -51,7 +51,7 @@ void cpuid_get(void *id);
 }
 #endif
 
-#endif /* __PERIPH_CPUID_H_ */
+#endif /* PERIPH_CPUID_H_ */
 /**
  * @}
  */

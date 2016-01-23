@@ -7,8 +7,8 @@
  */
 
 /**
- * @defgroup    driver_periph_random Random
- * @ingroup     driver_periph
+ * @defgroup    drivers_periph_random Random
+ * @ingroup     drivers_periph
  * @brief       Low-level (pseudo) random number generator driver
  *
  * The quality of the random data read from this interface is highly
@@ -26,8 +26,8 @@
  * @author      Christian Mehlis <mehlis@inf.fu-berlin.de>
  */
 
-#ifndef __RANDOM_H
-#define __RANDOM_H
+#ifndef RANDOM_H
+#define RANDOM_H
 
 #include "periph_conf.h"
 
@@ -77,5 +77,5 @@ void random_poweroff(void);
 }
 #endif
 
-#endif /* __RANDOM_H */
+#endif /* RANDOM_H */
 /** @} */

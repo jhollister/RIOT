@@ -8,7 +8,7 @@
 
 /**
  * @defgroup    drivers_nrf24l01p NRF24L01+ Driver Interface
- * @ingroup     drivers
+ * @ingroup     drivers_netdev
  *
  * @brief       Low-level driver for nrf24l01+ transceiver
  *
@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef __NRF24L01P_H
-#define __NRF24L01P_H
+#ifndef NRF24L01P_H
+#define NRF24L01P_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -583,5 +583,5 @@ void nrf24l01p_rx_cb(void *arg);
 }
 #endif
 
-#endif /* __NRF24L01P_H */
+#endif /* NRF24L01P_H */
 /** @} */

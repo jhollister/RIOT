@@ -10,13 +10,13 @@
  * @addtogroup  unittests
  * @{
  *
- * @file        tests-core.h
+ * @file
  * @brief       Unittests for the ``core`` module
  *
  * @author      Martine Lenders <mlenders@inf.fu-berlin.de>
  */
-#ifndef __TESTS_CORE_H_
-#define __TESTS_CORE_H_
+#ifndef TESTS_CORE_H_
+#define TESTS_CORE_H_
 
 #include "embUnit.h"
 
@@ -89,5 +89,5 @@ Test *tests_core_ringbuffer_tests(void);
 }
 #endif
 
-#endif /* __TESTS_CORE_H_ */
+#endif /* TESTS_CORE_H_ */
 /** @} */

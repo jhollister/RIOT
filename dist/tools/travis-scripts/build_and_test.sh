@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Copyright (C) 2015 Philipp Rosenkranz <philipp.rosenkranz@fu-berlin.de>
 #
@@ -23,11 +23,12 @@ set_result() {
 
 if [[ $BUILDTEST_MCU_GROUP ]]
 then
+
     if [ "$BUILDTEST_MCU_GROUP" == "static-tests" ]
     then
         RESULT=0
 
-        git rebase riot/master || git rebase --abort
+        git rebase master || git rebase --abort
         RESULT=$(set_result $? $RESULT)
 
         ./dist/tools/whitespacecheck/check.sh master
@@ -45,9 +46,6 @@ then
         ./dist/tools/externc/check.sh master
         RESULT=$(set_result $? $RESULT)
 
-        ./dist/tools/endingcheck/check.sh riot/master --diff-filter=MA
-        RESULT=$(set_result $? $RESULT)
-
         # TODO:
         #   Remove all but `master` parameters to cppcheck (and remove second
         #   invocation) once all warnings of cppcheck have been taken care of
@@ -58,19 +56,19 @@ then
         ./dist/tools/cppcheck/check.sh master --diff-filter=AC
         RESULT=$(set_result $? $RESULT)
 
-        ./dist/tools/pr_check/pr_check.sh riot/master
+        ./dist/tools/pr_check/pr_check.sh master
         RESULT=$(set_result $? $RESULT)
 
         exit $RESULT
     fi
+
     if [ "$BUILDTEST_MCU_GROUP" == "x86" ]
     then
-
         make -C ./tests/unittests all test BOARD=native || exit
         # TODO:
         #   Reenable once https://github.com/RIOT-OS/RIOT/issues/2300 is
         #   resolved:
         #   - make -C ./tests/unittests all test BOARD=qemu-i386 || exit
     fi
-    ./dist/tools/compile_test/compile_test.py
+    ./dist/tools/compile_test/compile_test.py $TRAVIS_BRANCH
 fi

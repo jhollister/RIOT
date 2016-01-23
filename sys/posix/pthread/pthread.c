@@ -24,7 +24,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "cpu-conf.h"
+#include "cpu_conf.h"
 #include "irq.h"
 #include "kernel_internal.h"
 #include "msg.h"
@@ -38,11 +38,11 @@
 #define ENABLE_DEBUG (0)
 
 #if ENABLE_DEBUG
-#   define PTHREAD_REAPER_STACKSIZE KERNEL_CONF_STACKSIZE_MAIN
-#   define PTHREAD_STACKSIZE KERNEL_CONF_STACKSIZE_MAIN
+#   define PTHREAD_REAPER_STACKSIZE THREAD_STACKSIZE_MAIN
+#   define PTHREAD_STACKSIZE THREAD_STACKSIZE_MAIN
 #else
-#   define PTHREAD_REAPER_STACKSIZE KERNEL_CONF_STACKSIZE_DEFAULT
-#   define PTHREAD_STACKSIZE KERNEL_CONF_STACKSIZE_DEFAULT
+#   define PTHREAD_REAPER_STACKSIZE THREAD_STACKSIZE_DEFAULT
+#   define PTHREAD_STACKSIZE THREAD_STACKSIZE_DEFAULT
 #endif
 
 #include "debug.h"
@@ -143,7 +143,7 @@ int pthread_create(pthread_t *newthread, const pthread_attr_t *attr, void *(*sta
             volatile kernel_pid_t pid = thread_create(pthread_reaper_stack,
                                              PTHREAD_REAPER_STACKSIZE,
                                              0,
-                                             CREATE_STACKTEST,
+                                             THREAD_CREATE_STACKTEST,
                                              pthread_reaper,
                                              NULL,
                                              "pthread-reaper");
@@ -154,8 +154,9 @@ int pthread_create(pthread_t *newthread, const pthread_attr_t *attr, void *(*sta
 
     pt->thread_pid = thread_create(stack,
                                    stack_size,
-                                   PRIORITY_MAIN,
-                                   CREATE_WOUT_YIELD | CREATE_STACKTEST,
+                                   THREAD_PRIORITY_MAIN,
+                                   THREAD_CREATE_WOUT_YIELD |
+                                   THREAD_CREATE_STACKTEST,
                                    pthread_start_routine,
                                    pt,
                                    "pthread");
@@ -166,7 +167,7 @@ int pthread_create(pthread_t *newthread, const pthread_attr_t *attr, void *(*sta
         return -1;
     }
 
-    sched_switch(PRIORITY_MAIN);
+    sched_switch(THREAD_PRIORITY_MAIN);
 
     return 0;
 }
@@ -206,7 +207,7 @@ void pthread_exit(void *retval)
             }
         }
 
-        dINT();
+        disableIRQ();
         if (self->stack) {
             msg_t m;
             m.content.ptr = self->stack;
