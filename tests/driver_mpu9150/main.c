@@ -29,9 +29,10 @@
 #endif
 
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "mpu9150.h"
-#include "vtimer.h"
+#include "xtimer.h"
 #include "board.h"
 
 #define SLEEP   (1000 * 1000u)
@@ -44,8 +45,6 @@ int main(void)
     int result;
 
     puts("MPU-9150 test application\n");
-
-    vtimer_init();
 
     printf("+------------Initializing------------+\n");
     result = mpu9150_init(&dev, TEST_I2C, TEST_HW_ADDR, TEST_COMP_ADDR);
@@ -84,22 +83,22 @@ int main(void)
     while (1) {
         /* Get accel data in milli g */
         mpu9150_read_accel(&dev, &measurement);
-        printf("Accel data [milli g] - X: %d   Y: %d   Z: %d\n",
+        printf("Accel data [milli g] - X: %"PRId16"   Y: %"PRId16"   Z: %"PRId16"\n",
                 measurement.x_axis, measurement.y_axis, measurement.z_axis);
         /* Get gyro data in dps */
         mpu9150_read_gyro(&dev, &measurement);
-        printf("Gyro data [dps] - X: %d   Y: %d   Z: %d\n",
+        printf("Gyro data [dps] - X: %"PRId16"   Y: %"PRId16"   Z: %"PRId16"\n",
                 measurement.x_axis, measurement.y_axis, measurement.z_axis);
         /* Get compass data in mikro Tesla */
         mpu9150_read_compass(&dev, &measurement);
-        printf("Compass data [mikro T] - X: %d   Y: %d   Z: %d\n",
+        printf("Compass data [mikro T] - X: %"PRId16"   Y: %"PRId16"   Z: %"PRId16"\n",
                 measurement.x_axis, measurement.y_axis, measurement.z_axis);
         /* Get temperature in milli degrees celsius */
         mpu9150_read_temperature(&dev, &temperature);
-        printf("Temperature [milli deg] : %ld\n", temperature);
+        printf("Temperature [milli deg] : %"PRId32"\n", temperature);
         printf("\n+-------------------------------------+\n");
 
-        vtimer_usleep(SLEEP);
+        xtimer_usleep(SLEEP);
     }
 
     return 0;

@@ -7,8 +7,8 @@
  */
 
 /**
- * @defgroup    driver_periph_spi SPI
- * @ingroup     driver_periph
+ * @defgroup    drivers_periph_spi SPI
+ * @ingroup     drivers_periph
  * @brief       Low-level SPI peripheral driver
  *
  * The current design of this interface targets implementations that use the SPI in blocking mode.
@@ -22,8 +22,10 @@
  * @author      Hauke Petersen <hauke.petersen@fu-berlin.de>
  */
 
-#ifndef __SPI_H
-#define __SPI_H
+#ifndef SPI_H
+#define SPI_H
+
+#include <stdint.h>
 
 #include "periph_conf.h"
 
@@ -252,5 +254,5 @@ void spi_poweroff(spi_t dev);
 }
 #endif
 
-#endif /* __SPI_H */
+#endif /* SPI_H */
 /** @} */

@@ -18,39 +18,25 @@
  * @author      Fabian Nack <nack@inf.fu-berlin.de>
  */
 
-#ifndef __BOARD_H
-#define __BOARD_H
+#ifndef BOARD_H_
+#define BOARD_H_
 
 #include "cpu.h"
 #include "periph_conf.h"
-#include "periph/gpio.h"
-#include "periph/spi.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * Define the nominal CPU core clock in this board
- */
-#define F_CPU               CLOCK_CORECLOCK
-
-/**
- * @name Assign the hardware timer
- */
-#define HW_TIMER            TIMER_0
-
-/**
  * @name Configure connected CC1101 (radio) device
  * @{
  */
 #define CC110X_SPI          SPI_0
-#define CC110X_CS           GPIO_7
-#define CC110X_GDO0         GPIO_11
-#define CC110X_GDO1         GPIO_2
-#define CC110X_GDO2         GPIO_12
-
-typedef uint8_t radio_packet_length_t;
+#define CC110X_CS           GPIO_PIN(PORT_B, 12)
+#define CC110X_GDO0         GPIO_PIN(PORT_C, 4)
+#define CC110X_GDO1         GPIO_PIN(PORT_A, 6)
+#define CC110X_GDO2         GPIO_PIN(PORT_C, 5)
 /** @} */
 
 /**
@@ -60,15 +46,6 @@ typedef uint8_t radio_packet_length_t;
 #define MPU9150_I2C         I2C_0
 #define MPU9150_HW_ADDR     (0x68)
 #define MPU9150_COMP_ADDR   (0x0E)
-/** @} */
-
-/**
- * @name Define UART device and baudrate for stdio
- * @{
- */
-#define STDIO               UART_0
-#define STDIO_BAUDRATE      (115200U)
-#define STDIO_RX_BUFSIZE    (64U)
 /** @} */
 
 /**
@@ -105,5 +82,5 @@ void board_init(void);
 }
 #endif
 
-#endif /** __BOARD_H */
+#endif /* BOARD_H_ */
 /** @} */

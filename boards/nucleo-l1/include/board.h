@@ -31,23 +31,14 @@ extern "C" {
 #endif
 
 /**
- * @name Define the nominal CPU core clock in this board
- */
-#define F_CPU               CLOCK_CORECLOCK
-
-/**
- * @name Define the UART to be used as stdio and its baudrate
+ * @name xtimer configuration
  * @{
  */
-#define STDIO               UART_0
-#define STDIO_BAUDRATE      (115200U)
-#define STDIO_RX_BUFSIZE    (64U)
+#define XTIMER              TIMER_DEV(0)
+#define XTIMER_CHAN         (0)
+#define XTIMER_OVERHEAD     (6)
+#define XTIMER_BACKOFF      (3)
 /** @} */
-
-/**
- * @name Assign the hardware timer
- */
-#define HW_TIMER            TIMER_0
 
 /**
  * @name LED pin definitions
@@ -73,11 +64,6 @@ extern "C" {
 #define LED_ORANGE_OFF
 #define LED_ORANGE_TOGGLE
 /** @} */
-
-/**
- * @name Define the type for the radio packet length for the transceiver
- */
-typedef uint8_t radio_packet_length_t;
 
 /**
  * @brief Initialize board specific hardware, including clock, LEDs and std-IO

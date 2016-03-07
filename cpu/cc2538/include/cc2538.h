@@ -7,10 +7,10 @@
  */
 
 /**
- * @ingroup         cpu_cc2538_definitions
+ * @ingroup         cpu_cc2538_regs
  * @{
  *
- * @file            cc2538.h
+ * @file
  * @brief           CC2538 MCU interrupt and register definitions
  *
  * @author          Ian Martin <ian@locicontrols.com>

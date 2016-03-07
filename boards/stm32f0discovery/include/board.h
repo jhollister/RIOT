@@ -18,31 +18,14 @@
  * @author      Hauke Petersen <hauke.petersen@fu-berlin.de>
  */
 
-#ifndef __BOARD_H
-#define __BOARD_H
+#ifndef BOARD_H_
+#define BOARD_H_
 
 #include "cpu.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/**
- * @name The nominal CPU core clock in this board
- */
-#define F_CPU               (48000000UL)
-
-/**
- * @name Assign the peripheral timer to be used as hardware timer
- */
-#define HW_TIMER            TIMER_0
-
-/**
- * @name Assign the UART interface to be used for stdio
- */
-#define STDIO               UART_0
-#define STDIO_BAUDRATE      (115200U)
-#define STDIO_RX_BUFSIZE    (64U)
 
 /**
  * @name LED pin definitions
@@ -57,20 +40,20 @@ extern "C" {
  * @name Macros for controlling the on-board LEDs.
  * @{
  */
-#define LD3_ON              (LED_PORT->BSRRL = LD3_PIN)
-#define LD3_OFF             (LED_PORT->BSRRH = LD3_PIN)
+#define LD3_ON              (LED_PORT->BSRR = LD3_PIN)
+#define LD3_OFF             (LED_PORT->BSRR = (LD3_PIN << 16))
 #define LD3_TOGGLE          (LED_PORT->ODR ^= LD3_PIN)
-#define LD4_ON              (LED_PORT->BSRRL = LD4_PIN)
-#define LD4_OFF             (LED_PORT->BSRRH = LD4_PIN)
+#define LD4_ON              (LED_PORT->BSRR = LD4_PIN)
+#define LD4_OFF             (LED_PORT->BSRR = (LD4_PIN << 16))
 #define LD4_TOGGLE          (LED_PORT->ODR ^= LD4_PIN)
 
 /* for compatibility to other boards */
-#define LED_GREEN_ON        LD4_ON
-#define LED_GREEN_OFF       LD4_OFF
-#define LED_GREEN_TOGGLE    LD4_TOGGLE
-#define LED_RED_ON          LD3_ON
-#define LED_RED_OFF         LD3_OFF
-#define LED_RED_TOGGLE      LD3_TOGGLE
+#define LED_GREEN_ON        LD3_ON
+#define LED_GREEN_OFF       LD3_OFF
+#define LED_GREEN_TOGGLE    LD3_TOGGLE
+#define LED_RED_ON          LD4_ON
+#define LED_RED_OFF         LD4_OFF
+#define LED_RED_TOGGLE      LD4_TOGGLE
 /** @} */
 
 /**
@@ -82,5 +65,5 @@ void board_init(void);
 }
 #endif
 
-#endif /** __BOARD_H */
+#endif /* BOARD_H_ */
 /** @} */

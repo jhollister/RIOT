@@ -10,7 +10,7 @@
  * @ingroup     driver_periph
  * @{
  *
- * @file        timer.c
+ * @file
  * @brief       Low-level timer driver implementation
  *
  * @author      Thomas Eichinger <thomas.eichinger@fu-berlin.de>
@@ -32,29 +32,38 @@
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
 
-
-typedef struct {
-    void (*cb)(int);
-} timer_conf_t;
-
 /**
  * @brief Timer state memory
  */
-timer_conf_t config[TIMER_NUMOF];
+static timer_isr_ctx_t config[TIMER_NUMOF];
 
 
 /**
  * @brief Setup the given timer
  */
-int timer_init(tim_t dev, unsigned int us_per_ticks, void (*callback)(int))
+int timer_init(tim_t dev, unsigned long freq, timer_cb_t cb, void *arg)
 {
-    /* configure GCLK0 to feed TC3, TC4 and TC5 */;
-    GCLK->CLKCTRL.reg = (uint16_t)((GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | (TC3_GCLK_ID << GCLK_CLKCTRL_ID_Pos)));
+    /* at the moment, the timer can only run at 1MHz */
+    if (freq != 1000000ul) {
+        return -1;
+    }
+
+/* select the clock generator depending on the main clock source:
+ * GCLK0 (1MHz) if we use the internal 8MHz oscillator
+ * GCLK1 (8MHz) if we use the PLL */
+#if CLOCK_USE_PLL
+    /* configure GCLK1 (configured to 1MHz) to feed TC3, TC4 and TC5 */;
+    GCLK->CLKCTRL.reg = (uint16_t)((GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK1 | (TC3_GCLK_ID << GCLK_CLKCTRL_ID_Pos)));
     while (GCLK->STATUS.bit.SYNCBUSY);
     /* TC4 and TC5 share the same channel */
+    GCLK->CLKCTRL.reg = (uint16_t)((GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK1 | (TC4_GCLK_ID << GCLK_CLKCTRL_ID_Pos)));
+#else
+    /* configure GCLK0 to feed TC3, TC4 and TC5 */;
+    GCLK->CLKCTRL.reg = (uint16_t)((GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | (TC3_GCLK_ID << GCLK_CLKCTRL_ID_Pos)));
+    /* TC4 and TC5 share the same channel */
     GCLK->CLKCTRL.reg = (uint16_t)((GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | (TC4_GCLK_ID << GCLK_CLKCTRL_ID_Pos)));
+#endif
     while (GCLK->STATUS.bit.SYNCBUSY);
-    /* select the timer and enable the timer specific peripheral clocks */
 
     switch (dev) {
 #if TIMER_0_EN
@@ -68,8 +77,13 @@ int timer_init(tim_t dev, unsigned int us_per_ticks, void (*callback)(int))
         while (TIMER_0_DEV.CTRLA.bit.SWRST);
         /* choosing 16 bit mode */
         TIMER_0_DEV.CTRLA.bit.MODE = TC_CTRLA_MODE_COUNT16_Val;
-        /* sourced by 8MHz with Presc 64 results in 125kHz clk */
-        TIMER_0_DEV.CTRLA.bit.PRESCALER = TC_CTRLA_PRESCALER_DIV64_Val;
+#if CLOCK_USE_PLL
+        /* sourced by 1MHz with prescaler 1 results in... you know it :-) */
+        TIMER_0_DEV.CTRLA.bit.PRESCALER = TC_CTRLA_PRESCALER_DIV1_Val;
+#else
+        /* sourced by 8MHz with Presc 8 results in 1MHz clk */
+        TIMER_0_DEV.CTRLA.bit.PRESCALER = TC_CTRLA_PRESCALER_DIV8_Val;
+#endif
         /* choose normal frequency operation */
         TIMER_0_DEV.CTRLA.bit.WAVEGEN = TC_CTRLA_WAVEGEN_NFRQ_Val;
         break;
@@ -87,8 +101,13 @@ int timer_init(tim_t dev, unsigned int us_per_ticks, void (*callback)(int))
 
 
         TIMER_1_DEV.CTRLA.bit.MODE = TC_CTRLA_MODE_COUNT32_Val;
+#if CLOCK_USE_PLL
+        /* sourced by 1MHz and prescaler 1 to reach 1MHz */
+        TIMER_1_DEV.CTRLA.bit.PRESCALER = TC_CTRLA_PRESCALER_DIV1_Val;
+#else
         /* sourced by 8MHz with Presc 8 results in 1Mhz clk */
         TIMER_1_DEV.CTRLA.bit.PRESCALER = TC_CTRLA_PRESCALER_DIV8_Val;
+#endif
         /* choose normal frequency operation */
         TIMER_1_DEV.CTRLA.bit.WAVEGEN = TC_CTRLA_WAVEGEN_NFRQ_Val;
         break;
@@ -99,7 +118,8 @@ int timer_init(tim_t dev, unsigned int us_per_ticks, void (*callback)(int))
     }
 
     /* save callback */
-    config[dev].cb = callback;
+    config[dev].cb = cb;
+    config[dev].arg = arg;
 
     /* enable interrupts for given timer */
     timer_irq_enable(dev);
@@ -308,24 +328,6 @@ void timer_irq_disable(tim_t dev)
     }
 }
 
-void timer_reset(tim_t dev)
-{
-    switch (dev) {
-#if TIMER_0_EN
-        case TIMER_0:
-            TIMER_0_DEV.CTRLA.bit.SWRST = 1;
-            break;
-#endif
-#if TIMER_1_EN
-        case TIMER_1:
-            TIMER_1_DEV.CTRLA.bit.SWRST = 1;
-            break;
-#endif
-        case TIMER_UNDEFINED:
-            break;
-    }
-}
-
 #if TIMER_0_EN
 void TIMER_0_ISR(void)
 {
@@ -333,14 +335,14 @@ void TIMER_0_ISR(void)
         if(config[TIMER_0].cb) {
             TIMER_0_DEV.INTFLAG.bit.MC0 = 1;
             TIMER_0_DEV.INTENCLR.reg = TC_INTENCLR_MC0;
-            config[TIMER_0].cb(0);
+            config[TIMER_0].cb(config[TIMER_0].arg, 0);
         }
     }
     else if (TIMER_0_DEV.INTFLAG.bit.MC1 && TIMER_0_DEV.INTENSET.bit.MC1) {
         if(config[TIMER_0].cb) {
             TIMER_0_DEV.INTFLAG.bit.MC1 = 1;
             TIMER_0_DEV.INTENCLR.reg = TC_INTENCLR_MC1;
-            config[TIMER_0].cb(1);
+            config[TIMER_0].cb(config[TIMER_0].arg, 1);
         }
     }
 
@@ -358,14 +360,14 @@ void TIMER_1_ISR(void)
         if (config[TIMER_1].cb) {
             TIMER_1_DEV.INTFLAG.bit.MC0 = 1;
             TIMER_1_DEV.INTENCLR.reg = TC_INTENCLR_MC0;
-            config[TIMER_1].cb(0);
+            config[TIMER_1].cb(config[TIMER_1].arg, 0);
         }
     }
     else if (TIMER_1_DEV.INTFLAG.bit.MC1 && TIMER_1_DEV.INTENSET.bit.MC1) {
         if(config[TIMER_1].cb) {
             TIMER_1_DEV.INTFLAG.bit.MC1 = 1;
             TIMER_1_DEV.INTENCLR.reg = TC_INTENCLR_MC1;
-            config[TIMER_1].cb(1);
+            config[TIMER_1].cb(config[TIMER_1].arg, 1);
         }
 
     }

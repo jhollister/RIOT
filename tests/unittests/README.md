@@ -30,6 +30,8 @@ Other output formats using [*embUnit*](http://embunit.sourceforge.net/)'s ``text
 * Compiler: ``OUTPUT="COMPILER"``
 * Text: ``OUTPUT="TEXT"``
 * XML: ``OUTPUT="XML"``
+* Color: ``OUTPUT="COLOR"`` (like default, but with red/green output)
+* Colored-Text: ``OUTPUT="COLORTEXT"`` (like ``TEXT``, but with red/green output)
 
 #### Compile example
 ```bash
@@ -135,13 +137,13 @@ The test header ``tests-<modulename>/tests-<module>.h`` of a module you add to `
  * @addtogroup  unittests
  * @{
  *
- * @file        tests-<module>.h
+ * @file
  * @brief       Unittests for the ``module`` module
  *
  * @author      <author>
  */
-#ifndef __TESTS_<MODULE>_H_
-#define __TESTS_<MODULE>_H_
+#ifndef TESTS_<MODULE>_H_
+#define TESTS_<MODULE>_H_
 #include "embUnit/embUnit.h"
 
 #ifdef __cplusplus
@@ -168,7 +170,7 @@ Test *tests_<module>_<header2>_tests(void);
 }
 #endif
 
-#endif /* __TESTS_<MODULE>_H_ */
+#endif /* TESTS_<MODULE>_H_ */
 /** @} */
 ```
 
